@@ -1,0 +1,49 @@
+---
+import { NAV, SITE_TITLE } from '../consts';
+import { withBase } from '../lib/url';
+
+const normalize = (path: string) => path.replace(/\/+$/, '') || '/';
+const current = normalize(Astro.url.pathname);
+
+const isActive = (href: string) => {
+  const target = normalize(withBase(href));
+  if (target === '/') return current === '/';
+  return current === target || current.startsWith(`${target}/`);
+};
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href={withBase('/')}>{SITE_TITLE}</a>
+    <nav class="site-nav" aria-label="主导航">
+      {
+        NAV.map((item) => (
+          <a href={withBase(item.href)} aria-current={isActive(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+      <a href={withBase('/rss.xml')} title="RSS 订阅">RSS</a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="切换明暗主题">
+        ◐
+      </button>
+    </nav>
+  </div>
+</header>
+
+<script is:inline>
+  (() => {
+    const button = document.getElementById('theme-toggle');
+    if (!button) return;
+    button.addEventListener('click', () => {
+      const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem('theme', next);
+      } catch (e) {
+        /* 隐私模式下写入失败不影响切换 */
+      }
+    });
+  })();
+</script>

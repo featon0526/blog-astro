@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { getPublishedPosts, type Post } from '../../lib/posts';
+import { tagSlug, withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  const groups = new Map<string, { tag: string; posts: Post[] }>();
+
+  for (const post of posts) {
+    for (const tag of post.data.tags) {
+      const slug = tagSlug(tag);
+      const group = groups.get(slug);
+      if (group) {
+        group.posts.push(post);
+      } else {
+        groups.set(slug, { tag, posts: [post] });
+      }
+    }
+  }
+
+  return [...groups.entries()].map(([slug, group]) => ({
+    params: { tag: slug },
+    props: { tag: group.tag, posts: group.posts },
+  }));
+}
+
+const { tag, posts } = Astro.props as { tag: string; posts: Post[] };
+---
+
+<BaseLayout title={`标签：${tag}`} description={`标签「${tag}」下的全部文章`}>
+  <h1 class="page-title">#{tag}</h1>
+  <p class="page-subtitle">
+    <a href={withBase('/tags/')}>← 全部标签</a>
+    <span aria-hidden="true"> · </span>
+    共 {posts.length} 篇
+  </p>
+  <PostList posts={posts} />
+</BaseLayout>

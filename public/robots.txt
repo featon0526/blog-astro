@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://featon0526.github.io/blog-astro/sitemap-index.xml

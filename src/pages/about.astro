@@ -1,0 +1,22 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const entry = await getEntry('pages', 'about');
+if (!entry) {
+  throw new Error('缺少 src/content/pages/about.md，无法生成关于页。');
+}
+
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={entry.data.title ?? '关于'} description={entry.data.summary}>
+  <article>
+    <header class="post-header">
+      <h1>{entry.data.title ?? '关于'}</h1>
+    </header>
+    <div class="post-body">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

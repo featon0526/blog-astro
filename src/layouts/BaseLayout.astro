@@ -1,0 +1,81 @@
+---
+import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR, AUTHOR_EMAIL } from '../consts';
+import { withBase } from '../lib/url';
+import Nav from '../components/Nav.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: 'website' | 'article';
+}
+
+const { title, description = SITE_DESCRIPTION, type = 'website' } = Astro.props;
+
+const pageTitle = title ? `${title} · ${SITE_TITLE}` : `${SITE_TITLE} · ${SITE_DESCRIPTION}`;
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImage = new URL(withBase('/og-default.jpg'), Astro.site).toString();
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (() => {
+        try {
+          const saved = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.dataset.theme = saved || (prefersDark ? 'dark' : 'light');
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={AUTHOR} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${SITE_TITLE} · RSS`}
+      href={withBase('/rss.xml')}
+    />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <Nav />
+    <main id="main">
+      <div class="container">
+        <slot />
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p>© {year} {AUTHOR}</p>
+        <p>
+          <a href={withBase('/rss.xml')}>RSS</a>
+          <span aria-hidden="true"> · </span>
+          <a href={`mailto:${AUTHOR_EMAIL}`}>{AUTHOR_EMAIL}</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

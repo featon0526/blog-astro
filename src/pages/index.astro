@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostList from '../components/PostList.astro';
+import { SITE_DESCRIPTION } from '../consts';
+import { getPublishedPosts } from '../lib/posts';
+
+const posts = await getPublishedPosts();
+---
+
+<BaseLayout>
+  <h1 class="page-title">文章</h1>
+  <p class="page-subtitle">{SITE_DESCRIPTION} 共 {posts.length} 篇。</p>
+  <PostList posts={posts} />
+</BaseLayout>
